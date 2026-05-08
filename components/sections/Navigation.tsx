@@ -41,8 +41,7 @@ export function Navigation() {
             onClick={() => scrollTo(0)}
             className="min-w-0 shrink truncate text-left font-mono text-xs font-bold tracking-tight text-white sm:text-sm"
           >
-            <span className="sm:hidden">{SITE.author.split(" ")[0]}</span>
-            <span className="hidden sm:inline">{SITE.author}</span>
+            <span>{SITE.author}</span>
             <span className="text-[var(--color-accent)]">.</span>
           </button>
 
