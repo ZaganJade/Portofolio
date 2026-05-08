@@ -198,18 +198,19 @@
 
 /* -----------------------------------------------------------
  * Reduced motion — respect user preference everywhere
- * ----------------------------------------------------------- */
+ * -----------------------------------------------------------
+ * NOTE: We deliberately do NOT set transition-duration to 0.01ms
+ * because MIUI/HyperOS (Xiaomi/Poco) enables prefers-reduced-motion
+ * by default, which would kill all Framer Motion / CSS transitions.
+ * Instead, we only disable looping CSS animations (marquees etc.)
+ * and let Framer Motion handle its own reduced-motion behavior
+ * via JS (shorter duration, no springs — but still visible).
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must win the cascade */
-    animation-duration: 0.01ms !important;
-    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must win the cascade */
     animation-iteration-count: 1 !important;
-    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must win the cascade */
-    transition-duration: 0.01ms !important;
-    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must win the cascade */
-    scroll-behavior: auto !important;
+    scroll-behavior: auto;
   }
 }
