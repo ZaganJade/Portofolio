@@ -197,20 +197,15 @@
 }
 
 /* -----------------------------------------------------------
- * Reduced motion — respect user preference everywhere
+ * Reduced motion
  * -----------------------------------------------------------
- * NOTE: We deliberately do NOT set transition-duration to 0.01ms
- * because MIUI/HyperOS (Xiaomi/Poco) enables prefers-reduced-motion
- * by default, which would kill all Framer Motion / CSS transitions.
- * Instead, we only disable looping CSS animations (marquees etc.)
- * and let Framer Motion handle its own reduced-motion behavior
- * via JS (shorter duration, no springs — but still visible).
+ * Handled by:
+ *   • MotionConfig reducedMotion="user" in layout.tsx
+ *     → Framer Motion respects only explicit OS accessibility setting
+ *   • Individual components via useReducedMotion() hook
+ *     → skip hover/cursor effects, not scroll-reveal
+ * We intentionally do NOT use a CSS @media query here because
+ * MIUI/HyperOS enables prefers-reduced-motion by default, which
+ * would break all animations (orbital rings, scanlines, marquees,
+ * scroll reveals) on Xiaomi / Poco devices.
  */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto;
-  }
-}
