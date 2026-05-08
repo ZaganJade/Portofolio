@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import { CursorTrail } from "@/components/effects/CursorTrail";
+import { MotionConfig } from "framer-motion";
 import { SmoothScrollProvider } from "@/components/effects/SmoothScrollProvider";
 import { SITE } from "@/lib/constants";
 import "./globals.css";
@@ -73,8 +74,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="bg-[var(--color-bg)] text-white antialiased">
         <SmoothScrollProvider>
-          <CursorTrail />
-          {children}
+          <MotionConfig reducedMotion="user">
+            <CursorTrail />
+            {children}
+          </MotionConfig>
         </SmoothScrollProvider>
       </body>
     </html>
