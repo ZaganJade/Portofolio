@@ -6,10 +6,12 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Magnetic } from "@/components/effects/Magnetic";
 import { useSmoothScroll } from "@/components/effects/SmoothScrollProvider";
+import { SceneErrorBoundary } from "@/components/three/SceneErrorBoundary";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { EASING, SECTIONS, SITE } from "@/lib/constants";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import { hasWebGL } from "@/lib/utils";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -35,20 +37,20 @@ export function Hero() {
   const firstName = parts.slice(0, 2).join(" ");
   const lastName = parts.slice(2).join(" ") || "Name";
 
-  // Defer Canvas mount by ONE macrotask (300ms) so hydration + initial
-  // paint complete before Three.js starts evaluating. Main thread gets
-  // a breathing room window which keeps TBT under control, while the
-  // delay is imperceptible to the user — the fade still feels like it
-  // lines up with the text stagger (text delay=0.3s, duration=1s).
+  // Check WebGL support on mount — some Android devices lack it
+  const [webglOk, setWebglOk] = useState(false);
+  useEffect(() => {
+    const ok = hasWebGL();
+    setWebglOk(ok);
+    if (!ok) console.warn("[Hero] WebGL not available — 3D scene skipped");
+  }, []);
+
+  // Defer Canvas mount so hydration + initial paint complete before
+  // Three.js starts evaluating. Main thread gets breathing room.
   const [mountScene, setMountScene] = useState(false);
   useEffect(() => {
     if (prefersReduced) return;
-    // Mount at 2000ms — empirically tuned sweet spot. At 1500ms, Three.js
-    // eval still overlaps late hydration tasks (TBT 490-670ms, Perf 74-78).
-    // At 2500ms, Herta visibly lags the text reveal. 2000ms is the balance:
-    // main thread has cooled, canvas boot is uninterrupted, and the 1.2s
-    // fade starts at 2.0s — only ~200ms after text settles at ~1.8s, so
-    // reveal feels coordinated.
+    // Mount at 2000ms — empirically tuned sweet spot.
     const timer = window.setTimeout(() => setMountScene(true), 2000);
     return () => window.clearTimeout(timer);
   }, [prefersReduced]);
@@ -72,7 +74,7 @@ export function Hero() {
       {/* 3D scene layer — mounts 500ms after paint, uses opacity+scale
           only (compositor-cheap properties). Duration matches the text
           stagger so reveal feels coordinated. Perf target: ~80. */}
-      {!prefersReduced && mountScene && (
+      {!prefersReduced && webglOk && mountScene && (
         <motion.div
           aria-hidden="true"
           className="absolute inset-0 z-0"
@@ -85,7 +87,9 @@ export function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          <HeroScene />
+          <SceneErrorBoundary fallback={null}>
+            <HeroScene />
+          </SceneErrorBoundary>
         </motion.div>
       )}
 
