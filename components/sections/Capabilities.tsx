@@ -83,9 +83,9 @@ export function Capabilities() {
           ))}
         </div>
 
-        {/* Tail spacer — generous room so the last card stays pinned
-         * all the way until the very end of the section. */}
-        <div aria-hidden="true" className="h-screen" />
+        {/* Tail spacer — just enough for the last card to pin briefly
+         * before the next section arrives. */}
+        <div aria-hidden="true" className="h-[20vh]" />
       </div>
     </Section>
   );
