@@ -24,10 +24,6 @@ import { HeroPoseTuner, HeroPoseTunerPanel } from "@/components/three/HeroPoseTu
  *   • Ready signal is dispatched via a custom useFrame-based probe
  *     instead of Drei's useProgress — saves the progress tracker
  *     chunk from the initial parse.
- *
- * Compatibility notes:
- *   • Model uses meshopt compression only (no Draco/WASM) for maximum
- *     device support. Falls back to animated icosahedron if loading fails.
  */
 
 const USE_CHARACTER = true;
@@ -59,6 +55,8 @@ function FirstFrameSignal({ onReady }: { onReady?: () => void }) {
   const { gl } = useThree();
   useEffect(() => {
     if (!onReady) return;
+    // rAF gives GPU one frame to actually paint before we signal.
+    // Using gl here also prevents tree-shaking from dropping this.
     const id = requestAnimationFrame(() => {
       void gl;
       onReady();
@@ -66,76 +64,6 @@ function FirstFrameSignal({ onReady }: { onReady?: () => void }) {
     return () => cancelAnimationFrame(id);
   }, [gl, onReady]);
   return null;
-}
-
-/**
- * Wraps HeroCharacter with a timeout-based fallback to HeroGeometry.
- * If the GLB fails to load (network error, decode error, OOM, etc.),
- * we silently swap to the animated icosahedron instead of showing nothing.
- */
-function CharacterWithFallback({ url, posX, posY }: { url: string; posX: number; posY: number }) {
-  const [useFallback, setUseFallback] = useState(false);
-
-  useEffect(() => {
-    // If model hasn't loaded in 8s, fall back to geometry.
-    // This handles cases where the download stalls or device is very slow.
-    const timer = window.setTimeout(() => setUseFallback(true), 8000);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  if (useFallback) {
-    console.warn("[HeroScene] Model load timed out — falling back to HeroGeometry");
-    return <HeroGeometry />;
-  }
-
-  return (
-    <ErrorCatcher onFallback={() => setUseFallback(true)}>
-      <HeroCharacter
-        url={url}
-        scale={2.05}
-        position={[posX, posY, -1.3]}
-        baseRotation={[0, -0.48, 0.03]}
-        pose={POSE_TUNED}
-        breathIntensity={1}
-        mouseIntensity={0.45}
-        hideMeshes={[/Avatar_Show/i, /showcase/i, /nameplate/i]}
-        colorPunch={1}
-        debug={DEBUG_SKELETON}
-      />
-    </ErrorCatcher>
-  );
-}
-
-/**
- * Minimal error boundary that catches GLTFLoader errors (network failures,
- * decode errors, OOM) inside the Canvas R3F tree and falls back gracefully.
- */
-import { Component, type ErrorInfo, type ReactNode } from "react";
-
-interface ECProps {
-  children: ReactNode;
-  onFallback: () => void;
-}
-interface ECState {
-  error: Error | null;
-}
-
-class ErrorCatcher extends Component<ECProps, ECState> {
-  state: ECState = { error: null };
-
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("[HeroScene] Character failed to load:", error.message, info.componentStack);
-    this.props.onFallback();
-  }
-
-  render() {
-    if (this.state.error) return null;
-    return this.props.children;
-  }
 }
 
 export function HeroScene({ onReady }: HeroSceneProps = {}) {
@@ -194,7 +122,19 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
               <HeroGeometry />
             )
           ) : USE_CHARACTER ? (
-            <CharacterWithFallback url={MODEL_URL} posX={posX} posY={posY} />
+            <HeroCharacter
+              url={MODEL_URL}
+              // 🔒 LOCKED — user-tuned POSE_TUNED rev 2 on 2026-05-08
+              scale={2.05}
+              position={[posX, posY, -1.3]}
+              baseRotation={[0, -0.48, 0.03]}
+              pose={POSE_TUNED}
+              breathIntensity={1}
+              mouseIntensity={0.45}
+              hideMeshes={[/Avatar_Show/i, /showcase/i, /nameplate/i]}
+              colorPunch={1}
+              debug={DEBUG_SKELETON}
+            />
           ) : (
             <HeroGeometry />
           )}
