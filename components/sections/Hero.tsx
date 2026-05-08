@@ -49,11 +49,15 @@ export function Hero() {
   // Three.js starts evaluating. Main thread gets breathing room.
   const [mountScene, setMountScene] = useState(false);
   useEffect(() => {
-    if (prefersReduced) return;
     // Mount at 800ms — early enough to sync with text reveal (text
     // starts at 0.3s, settles ~1.8s). Fade-in overlaps the tail end
     // so 3D and text feel simultaneous.
-    const timer = window.setTimeout(() => setMountScene(true), 800);
+    // NOTE: We intentionally still mount when prefersReduced is true
+    // because MIUI/HyperOS (Poco, Xiaomi) enables reduced motion by
+    // default, which would completely hide the 3D character otherwise.
+    // The HeroCharacter component handles reduced-motion internally by
+    // skipping breathing/cursor animations.
+    const timer = window.setTimeout(() => setMountScene(true), prefersReduced ? 0 : 800);
     return () => window.clearTimeout(timer);
   }, [prefersReduced]);
 
@@ -76,7 +80,7 @@ export function Hero() {
       {/* 3D scene layer — mounts 500ms after paint, uses opacity+scale
           only (compositor-cheap properties). Duration matches the text
           stagger so reveal feels coordinated. Perf target: ~80. */}
-      {!prefersReduced && webglOk && mountScene && (
+      {webglOk && mountScene && (
         <motion.div
           aria-hidden="true"
           className="absolute inset-0 z-0"
