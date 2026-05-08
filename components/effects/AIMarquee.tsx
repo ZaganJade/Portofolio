@@ -1,6 +1,5 @@
 "use client";
 
-import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -40,8 +39,6 @@ export interface AIMarqueeProps {
 }
 
 export function AIMarquee({ className, speed = 40 }: AIMarqueeProps) {
-  const prefersReduced = useReducedMotion();
-
   return (
     <section
       aria-label="AI stack marquee"
@@ -65,11 +62,15 @@ export function AIMarquee({ className, speed = 40 }: AIMarqueeProps) {
         <span>AI.stack</span>
       </div>
 
-      {/* Infinite track — duplicated inline for seamless wrap */}
+      {/* Infinite track — duplicated inline for seamless wrap.
+       * We intentionally do NOT gate on prefers-reduced-motion because
+       * MIUI/HyperOS (Xiaomi/Poco) enables it by default, which would
+       * break the marquee on those devices. The animation is a slow,
+       * continuous horizontal scroll — not vestibular trigger territory. */}
       <div
         className="flex w-max items-center gap-0"
         style={{
-          animation: prefersReduced ? "none" : `ai-marquee ${speed}s linear infinite`,
+          animation: `ai-marquee ${speed}s linear infinite`,
           animationPlayState: "running",
         }}
       >
