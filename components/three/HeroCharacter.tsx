@@ -211,6 +211,22 @@ export const POSE_TUNED: PoseTargets = {
 };
 
 /**
+ * POSE_TUNED_MOBILE — same as POSE_TUNED but with arms raised higher
+ * so the left hand aligns with the "Available for new projects" badge
+ * on mobile viewports.
+ */
+export const POSE_TUNED_MOBILE: PoseTargets = {
+  ...POSE_TUNED,
+  // Raise left arm higher — z increases = arm lifts laterally
+  leftArm: { x: -0.27, y: 0.27, z: 1.8 },
+  // Bend forearm more sharply upward
+  leftForeArm: { x: 1.1, y: -0.1, z: -2.18 },
+  // Raise right arm slightly for symmetry
+  rightArm: { x: 0.23, y: 0.81, z: -1.85 },
+  rightForeArm: { x: -1.5, y: -0.8, z: -0.4 },
+};
+
+/**
  * DOUBLE PEACE — both hands raised in front, elbows sharply bent ~90°,
  * hands near shoulder/face level with palms facing camera. Body is
  * frontal to camera for maximum "hello world" energy.

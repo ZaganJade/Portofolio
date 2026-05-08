@@ -3,7 +3,7 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { ACESFilmicToneMapping, SRGBColorSpace } from "three";
-import { HeroCharacter, POSE_TUNED } from "@/components/three/HeroCharacter";
+import { HeroCharacter, POSE_TUNED, POSE_TUNED_MOBILE } from "@/components/three/HeroCharacter";
 import { HeroGeometry } from "@/components/three/HeroGeometry";
 import { HeroPoseTuner, HeroPoseTunerPanel } from "@/components/three/HeroPoseTuner";
 
@@ -70,18 +70,22 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
   const tune = useTuneMode();
 
   // Responsive position: center + higher on mobile, offset right on desktop
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 640,
+  );
   const [posX, setPosX] = useState(
     typeof window !== "undefined" && window.innerWidth < 640 ? 0 : 1.7,
   );
   const [posY, setPosY] = useState(
-    typeof window !== "undefined" && window.innerWidth < 640 ? -1.6 : -1.95,
+    typeof window !== "undefined" && window.innerWidth < 640 ? -0.475 : -1.95,
   );
 
   useEffect(() => {
     const handleResize = () => {
-      const isMobile = window.innerWidth < 640;
-      setPosX(isMobile ? 0 : 1.7);
-      setPosY(isMobile ? -0.475 : -1.95);
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+      setPosX(mobile ? 0 : 1.7);
+      setPosY(mobile ? -0.475 : -1.95);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -128,7 +132,7 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
               scale={2.05}
               position={[posX, posY, -1.3]}
               baseRotation={[0, -0.48, 0.03]}
-              pose={POSE_TUNED}
+              pose={isMobile ? POSE_TUNED_MOBILE : POSE_TUNED}
               breathIntensity={1}
               mouseIntensity={0.45}
               hideMeshes={[/Avatar_Show/i, /showcase/i, /nameplate/i]}
