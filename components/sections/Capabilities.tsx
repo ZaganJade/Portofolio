@@ -68,22 +68,20 @@ export function Capabilities() {
           </div>
         </div>
 
-        {/* Sticky stack — each card wrapper is tall enough for sticky to work.
-         * As user scrolls, the next card slides over the previous one. */}
-        {capabilities.map((capability, index) => (
-          <div
-            key={capability.id}
-            className="min-h-[80vh] md:min-h-[85vh]"
-            style={{ marginBottom: index < capabilities.length - 1 ? -8 : undefined }}
-          >
+        {/* Sticky stack — all cards are siblings in the same containing block.
+         * Each card has position:sticky with staggered `top`, so newer cards
+         * slide in and pin on top of older ones as the user scrolls.
+         * CapabilityCard itself handles margin-bottom for scroll room. */}
+        <div className="relative">
+          {capabilities.map((capability, index) => (
             <CapabilityCard
               key={capability.id}
               capability={capability}
               index={index}
               total={capabilities.length}
             />
-          </div>
-        ))}
+          ))}
+        </div>
 
         {/* Tail spacer — gives the last card room to pin before section ends */}
         <div aria-hidden="true" className="h-[30vh]" />
