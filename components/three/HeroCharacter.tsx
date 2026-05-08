@@ -8,8 +8,8 @@ import { clone as cloneSkeletalMesh } from "three/examples/jsm/utils/SkeletonUti
 import { useIsTouchDevice } from "@/lib/hooks/useIsTouchDevice";
 import { lerp } from "@/lib/utils";
 
-// CDN-hosted Draco decoder (our GLB is Draco-compressed)
-const DRACO_DECODER_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
+// Self-hosted Draco decoder — avoids cross-origin WASM failures on mobile Chrome
+const DRACO_DECODER_PATH = "/draco/";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
