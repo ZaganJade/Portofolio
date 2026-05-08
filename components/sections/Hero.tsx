@@ -50,8 +50,10 @@ export function Hero() {
   const [mountScene, setMountScene] = useState(false);
   useEffect(() => {
     if (prefersReduced) return;
-    // Mount at 2000ms — empirically tuned sweet spot.
-    const timer = window.setTimeout(() => setMountScene(true), 2000);
+    // Mount at 800ms — early enough to sync with text reveal (text
+    // starts at 0.3s, settles ~1.8s). Fade-in overlaps the tail end
+    // so 3D and text feel simultaneous.
+    const timer = window.setTimeout(() => setMountScene(true), 800);
     return () => window.clearTimeout(timer);
   }, [prefersReduced]);
 
@@ -85,7 +87,7 @@ export function Hero() {
           }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.0, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
           <SceneErrorBoundary fallback={null}>
             <HeroScene />
