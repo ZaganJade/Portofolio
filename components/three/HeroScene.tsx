@@ -81,7 +81,7 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
     const handleResize = () => {
       const isMobile = window.innerWidth < 640;
       setPosX(isMobile ? 0 : 1.7);
-      setPosY(isMobile ? -1.6 : -1.95);
+      setPosY(isMobile ? -0.85 : -1.95);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
