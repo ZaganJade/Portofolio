@@ -101,7 +101,9 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
         gl={{
           antialias: true,
           alpha: true,
-          powerPreference: "high-performance",
+          // Don't fail on low-end mobile GPUs that can't provide
+          // high-performance contexts. Let Three.js pick what works.
+          failIfMajorPerformanceCaveat: false,
           toneMapping: ACESFilmicToneMapping,
           toneMappingExposure: 1.0,
           outputColorSpace: SRGBColorSpace,

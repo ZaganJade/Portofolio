@@ -84,11 +84,6 @@ export function Hero() {
         <motion.div
           aria-hidden="true"
           className="absolute inset-0 z-0"
-          style={{
-            contain: "layout style paint",
-            contentVisibility: "auto",
-            containIntrinsicSize: "100vh",
-          }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.0, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}

@@ -44,13 +44,19 @@ export function isTouchDevice(): boolean {
 }
 
 /**
- * Detect WebGL support.
+ * Detect WebGL support. Tries WebGL 1 and experimental-webgl for
+ * maximum compatibility (some older Android devices only expose the
+ * experimental context).
  */
 export function hasWebGL(): boolean {
   if (typeof window === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return !!(window.WebGLRenderingContext && canvas.getContext("webgl"));
+    const gl =
+      canvas.getContext("webgl2") ||
+      canvas.getContext("webgl") ||
+      canvas.getContext("experimental-webgl");
+    return !!gl;
   } catch {
     return false;
   }
