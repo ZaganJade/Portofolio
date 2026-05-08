@@ -51,4 +51,4 @@ Thumbs.db
 .pi
 
 # Generated script outputs (keep scripts, skip their outputs)
-scripts/skeleton-report.json
+scripts/skeleton-report.json*.draco-backup.glb

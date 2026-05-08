@@ -8,8 +8,9 @@ import { clone as cloneSkeletalMesh } from "three/examples/jsm/utils/SkeletonUti
 import { useIsTouchDevice } from "@/lib/hooks/useIsTouchDevice";
 import { lerp } from "@/lib/utils";
 
-// Self-hosted Draco decoder — avoids cross-origin WASM failures on mobile Chrome
-const DRACO_DECODER_PATH = "/draco/";
+// Model uses meshopt compression only (no Draco/WASM dependency —
+// maximum mobile compatibility). Draco decoder files in /public/draco/
+// are kept for the original backup but no longer needed at runtime.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -343,7 +344,7 @@ export function HeroCharacter({
   debug = false,
 }: HeroCharacterProps) {
   const groupRef = useRef<Group>(null);
-  const { scene, animations } = useGLTF(url, DRACO_DECODER_PATH);
+  const { scene, animations } = useGLTF(url);
   const { viewport, pointer } = useThree();
   const isTouch = useIsTouchDevice();
 
