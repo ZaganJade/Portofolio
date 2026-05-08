@@ -68,17 +68,22 @@ export function Capabilities() {
           </div>
         </div>
 
-        {/* Sticky stack. Each card is sticky within this container. */}
-        <div className="flex flex-col gap-8">
-          {capabilities.map((capability, index) => (
+        {/* Sticky stack — each card wrapper is tall enough for sticky to work.
+         * As user scrolls, the next card slides over the previous one. */}
+        {capabilities.map((capability, index) => (
+          <div
+            key={capability.id}
+            className="min-h-[80vh] md:min-h-[85vh]"
+            style={{ marginBottom: index < capabilities.length - 1 ? -8 : undefined }}
+          >
             <CapabilityCard
               key={capability.id}
               capability={capability}
               index={index}
               total={capabilities.length}
             />
-          ))}
-        </div>
+          </div>
+        ))}
 
         {/* Tail spacer — gives the last card room to pin before section ends */}
         <div aria-hidden="true" className="h-[30vh]" />
