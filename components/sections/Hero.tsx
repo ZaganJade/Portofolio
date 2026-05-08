@@ -95,7 +95,7 @@ export function Hero() {
       )}
 
       {/* Content overlay */}
-      <div className="relative z-10 flex min-h-screen w-screen items-center justify-center px-2 text-center sm:px-6 md:px-10">
+      <div className="relative z-10 flex min-h-screen w-full items-center justify-center px-2 text-center sm:px-6 md:px-10">
         <div className="flex w-full max-w-none flex-col items-center justify-center gap-8 py-24">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
