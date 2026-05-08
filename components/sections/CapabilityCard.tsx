@@ -1,8 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ArrowUpRight, type LucideIcon } from "lucide-react";
 import { type CSSProperties, type MouseEvent, useRef, useState } from "react";
 import type { Capability } from "@/content/capabilities";
+import { EASING } from "@/lib/constants";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
@@ -60,7 +62,15 @@ export function CapabilityCard({ capability, index, total }: CapabilityCardProps
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: decorative cursor-spotlight; card is purely visual, not interactive
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 60 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-5% 0px" }}
+      transition={{
+        duration: 0.8,
+        delay: 0.1,
+        ease: EASING.outExpo,
+      }}
       className="sticky w-full"
       style={style}
       data-capability-card
@@ -214,6 +224,6 @@ export function CapabilityCard({ capability, index, total }: CapabilityCardProps
           transform: scale(${1 - depth * 0.015});
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }
