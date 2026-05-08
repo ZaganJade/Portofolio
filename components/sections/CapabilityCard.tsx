@@ -56,10 +56,9 @@ export function CapabilityCard({ capability, index, total }: CapabilityCardProps
   const style: CSSProperties = {
     top: `${baseTop + index * step}px`,
     zIndex: index + 10,
-    // Give each card ~10vh of scroll room so the next card has time to
-    // slide up over this one before pinning. Last card keeps same spacing
-    // so it also gets a proper pinned moment before the section ends.
-    marginBottom: "10vh",
+    // Give each card ~3vh of scroll room so the next card has time to
+    // slide up over this one before pinning. Tight stacking.
+    marginBottom: "3vh",
     "--cap-accent": capability.accent,
     "--cap-gradient": capability.gradient,
   } as CSSProperties;
