@@ -29,16 +29,16 @@ export function Navigation() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: hidden ? -100 : 0, opacity: hidden ? 0 : 1 }}
         transition={{ duration: 0.5, ease: EASING.outExpo }}
-        className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4 md:pt-6"
+        className="fixed inset-x-0 top-0 z-50 flex justify-center px-2 pt-2 sm:px-4 sm:pt-4 md:pt-6"
       >
         <nav
           aria-label="Primary"
-          className="glass-strong flex w-full max-w-5xl items-center justify-between gap-2 rounded-full px-3 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3"
+          className="glass-strong flex w-full max-w-5xl items-center justify-between gap-1 rounded-full px-2.5 py-2 sm:gap-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3"
         >
           <button
             type="button"
             onClick={() => scrollTo(0)}
-            className="min-w-0 flex-1 truncate text-left font-mono text-xs font-semibold tracking-tight text-white transition-colors hover:text-[var(--color-accent-hover)] sm:flex-none sm:text-sm"
+            className="shrink-0 truncate text-left font-mono text-xs font-semibold tracking-tight text-white transition-colors hover:text-[var(--color-accent-hover)] sm:text-sm"
           >
             <span className="sm:hidden">
               {(SITE.author.split(" ")[0] ?? SITE.author).slice(0, 12)}
