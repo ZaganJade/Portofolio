@@ -74,14 +74,14 @@ export function HeroScene({ onReady }: HeroSceneProps = {}) {
     typeof window !== "undefined" && window.innerWidth < 640 ? 0 : 1.7,
   );
   const [posY, setPosY] = useState(
-    typeof window !== "undefined" && window.innerWidth < 640 ? -0.1 : -1.95,
+    typeof window !== "undefined" && window.innerWidth < 640 ? -1.6 : -1.95,
   );
 
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.innerWidth < 640;
       setPosX(isMobile ? 0 : 1.7);
-      setPosY(isMobile ? -0.1 : -1.95);
+      setPosY(isMobile ? -1.6 : -1.95);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
