@@ -24,7 +24,7 @@ export const socials: Social[] = [
     platform: "whatsapp",
     label: "WhatsApp",
     url: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-      "Halo Muhammad, saya lihat portofolio kamu — mau ngobrol terkait project.",
+      "Halo, Muhammad Ikhsanudin Arsalan. Saya menemukan portofolio Anda dan tertarik untuk berdiskusi mengenai peluang kerja sama dalam sebuah proyek. Apakah Anda berkenan untuk berbincang lebih lanjut? Terima kasih.",
     )}`,
     handle: `+${WA_NUMBER}`,
   },
@@ -49,7 +49,7 @@ export const socials: Social[] = [
   {
     platform: "email",
     label: "Email",
-    url: "mailto:hello@yourdomain.dev",
-    handle: "hello@yourdomain.dev",
+    url: "mailto:ikhsanarsalan@gmail.com",
+    handle: "ikhsanarsalan@gmail.com",
   },
 ];

@@ -83,7 +83,8 @@ export interface GitHubSummary {
   profile: GitHubProfile | null;
   repos: GitHubRepo[];
   totalStars: number;
-  totalForks: number;
+  /** Number of public repositories the user has forked from others */
+  forkedRepos: number;
   languages: LanguageBreakdown[];
   contributions: ContributionStats | null;
   /** ISO timestamp of when this summary was fetched */
@@ -197,12 +198,129 @@ async function fetchPinnedRepoNames(username: string): Promise<string[] | null> 
   }
 }
 
+/** GitHub GraphQL contributionLevel enum → our 0–4 heatmap levels. */
+const CONTRIBUTION_LEVELS: Record<string, 0 | 1 | 2 | 3 | 4> = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4,
+};
+
 /**
- * Fetches contribution calendar data from the jogruber.de proxy
- * (unofficial but stable, scrapes GitHub's public profile page).
- * Returns null on failure so callers can hide the widget.
+ * Derive streak + max-day stats from a day series (oldest first) and wrap it
+ * into a ContributionStats. Shared by both the GraphQL and proxy fetchers so
+ * the numbers are computed identically regardless of source.
  */
-async function fetchContributions(username: string): Promise<ContributionStats | null> {
+function buildContributionStats(days: ContributionDay[], total: number): ContributionStats {
+  // Current streak: walk backwards from today until the first zero day.
+  let currentStreak = 0;
+  for (let i = days.length - 1; i >= 0; i--) {
+    const day = days[i];
+    if (!day) break;
+    if (day.count > 0) currentStreak++;
+    else break;
+  }
+  // Longest streak: scan forward tracking the running run length.
+  let longestStreak = 0;
+  let running = 0;
+  for (const d of days) {
+    if (d.count > 0) {
+      running++;
+      if (running > longestStreak) longestStreak = running;
+    } else {
+      running = 0;
+    }
+  }
+  const maxDay = days.reduce((m, d) => (d.count > m ? d.count : m), 0);
+  return { days, totalLastYear: total, currentStreak, longestStreak, maxDay };
+}
+
+/**
+ * Official source: GitHub's GraphQL `contributionsCollection`. Queried with the
+ * user's OWN token, the calendar includes private/restricted contributions, so
+ * the total matches the "N contributions in the last year" GitHub shows the
+ * signed-in user on github.com. (The public scraper proxy below only ever sees
+ * public contributions, which is why it undercounts.)
+ *
+ * Returns `null` when the token is missing or the request fails, so the caller
+ * can fall back to the proxy.
+ */
+async function fetchContributionsGraphQL(username: string): Promise<ContributionStats | null> {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+
+  const query = `
+    query Contributions($login: String!) {
+      user(login: $login) {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+                contributionLevel
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables: { login: username } }),
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      data?: {
+        user?: {
+          contributionsCollection?: {
+            contributionCalendar?: {
+              totalContributions?: number;
+              weeks?: {
+                contributionDays?: {
+                  date: string;
+                  contributionCount: number;
+                  contributionLevel: string;
+                }[];
+              }[];
+            };
+          };
+        };
+      };
+    };
+    const calendar = data.data?.user?.contributionsCollection?.contributionCalendar;
+    if (!calendar?.weeks) return null;
+    const days: ContributionDay[] = calendar.weeks
+      .flatMap((w) => w.contributionDays ?? [])
+      .map((d) => ({
+        date: d.date,
+        count: d.contributionCount,
+        level: CONTRIBUTION_LEVELS[d.contributionLevel] ?? 0,
+      }));
+    if (days.length === 0) return null;
+    const total = calendar.totalContributions ?? days.reduce((s, d) => s + d.count, 0);
+    return buildContributionStats(days, total);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fallback source: the jogruber.de proxy, which scrapes the PUBLIC profile page
+ * and therefore counts public contributions only. Used when no GITHUB_TOKEN is
+ * configured (e.g. local dev without secrets).
+ */
+async function fetchContributionsProxy(username: string): Promise<ContributionStats | null> {
   try {
     const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`, {
       next: { revalidate: REVALIDATE_SECONDS },
@@ -218,37 +336,21 @@ async function fetchContributions(username: string): Promise<ContributionStats |
       level: Math.min(4, Math.max(0, d.level)) as 0 | 1 | 2 | 3 | 4,
     }));
     if (days.length === 0) return null;
-
-    // Compute streaks (walk backwards for current streak, scan for longest)
-    let currentStreak = 0;
-    for (let i = days.length - 1; i >= 0; i--) {
-      const day = days[i];
-      if (!day) break;
-      if (day.count > 0) currentStreak++;
-      else break;
-    }
-    let longestStreak = 0;
-    let running = 0;
-    for (const d of days) {
-      if (d.count > 0) {
-        running++;
-        if (running > longestStreak) longestStreak = running;
-      } else {
-        running = 0;
-      }
-    }
-    const maxDay = days.reduce((m, d) => (d.count > m ? d.count : m), 0);
-
-    return {
-      days,
-      totalLastYear: raw.total?.lastYear ?? days.reduce((s, d) => s + d.count, 0),
-      currentStreak,
-      longestStreak,
-      maxDay,
-    };
+    const total = raw.total?.lastYear ?? days.reduce((s, d) => s + d.count, 0);
+    return buildContributionStats(days, total);
   } catch {
     return null;
   }
+}
+
+/**
+ * Contribution calendar for the last year. Prefers the official GraphQL API
+ * (matches github.com, includes private contributions) and falls back to the
+ * public scraper proxy when no token is configured. Returns `null` only if both
+ * sources fail, so the caller can hide the widget.
+ */
+async function fetchContributions(username: string): Promise<ContributionStats | null> {
+  return (await fetchContributionsGraphQL(username)) ?? (await fetchContributionsProxy(username));
 }
 
 function mapProfile(raw: Record<string, unknown>): GitHubProfile {
@@ -288,6 +390,18 @@ function mapRepo(raw: Record<string, unknown>): GitHubRepo {
 }
 
 /**
+ * Lightweight fetch of just the public-repo count (for the Experience stats).
+ * Reuses the same cached `/users/{username}` request as `getGitHubSummary`, so
+ * it adds no extra network round-trip. Returns `null` on failure so the caller
+ * can omit the stat rather than render a misleading 0.
+ */
+export async function getPublicRepoCount(username = SITE.github): Promise<number | null> {
+  const raw = await gh<Record<string, unknown>>(`/users/${username}`);
+  if (!raw) return null;
+  return Number(raw.public_repos ?? 0);
+}
+
+/**
  * Fetches the user's public profile, repos, and derived stats.
  * Returns a best-effort summary — partial data on failure rather than throwing.
  */
@@ -300,10 +414,14 @@ export async function getGitHubSummary(username = SITE.github): Promise<GitHubSu
   ]);
 
   const profile = rawProfile ? mapProfile(rawProfile) : null;
-  const allRepos = (rawRepos ?? []).map(mapRepo).filter((r) => !r.fork);
+  const mappedRepos = (rawRepos ?? []).map(mapRepo);
+  const allRepos = mappedRepos.filter((r) => !r.fork);
 
   const totalStars = allRepos.reduce((sum, r) => sum + r.stars, 0);
-  const totalForks = allRepos.reduce((sum, r) => sum + r.forks, 0);
+  // Count repos the USER has forked (their activity), not forks their own repos
+  // received from others (which is typically 0). The forked repos are excluded
+  // from `allRepos` above, so count them from the full mapped list.
+  const forkedRepos = mappedRepos.filter((r) => r.fork).length;
 
   // Language breakdown — counts repos per language (simple, fast, no extra API calls)
   const langCount = new Map<string, number>();
@@ -312,14 +430,26 @@ export async function getGitHubSummary(username = SITE.github): Promise<GitHubSu
     langCount.set(repo.language, (langCount.get(repo.language) ?? 0) + 1);
   }
   const totalLangs = Array.from(langCount.values()).reduce((s, n) => s + n, 0) || 1;
-  const languages: LanguageBreakdown[] = Array.from(langCount.entries())
+  const rankedLangs: LanguageBreakdown[] = Array.from(langCount.entries())
     .map(([name, count]) => ({
       name,
       percent: Math.round((count / totalLangs) * 1000) / 10,
       color: LANGUAGE_COLORS[name] ?? "#8b5cf6",
     }))
-    .sort((a, b) => b.percent - a.percent)
-    .slice(0, 6);
+    .sort((a, b) => b.percent - a.percent);
+
+  const languages: LanguageBreakdown[] = rankedLangs.slice(0, 6);
+  // The top 6 are computed as a share of ALL languages, so when more than 6
+  // exist they sum to <100% and leave a gap at the end of the bar. Append an
+  // "Other" segment for the remaining share so the bar fills its full width
+  // without misrepresenting the individual language percentages.
+  if (rankedLangs.length > languages.length) {
+    const shown = languages.reduce((sum, l) => sum + l.percent, 0);
+    const otherPercent = Math.round((100 - shown) * 10) / 10;
+    if (otherPercent > 0) {
+      languages.push({ name: "Other", percent: otherPercent, color: "#6b7280" });
+    }
+  }
 
   // Repo selection strategy:
   //   1. If GraphQL returned pinned repo names → use them in pinned order
@@ -347,7 +477,7 @@ export async function getGitHubSummary(username = SITE.github): Promise<GitHubSu
     profile,
     repos: topRepos,
     totalStars,
-    totalForks,
+    forkedRepos,
     languages,
     contributions,
     fetchedAt: new Date().toISOString(),

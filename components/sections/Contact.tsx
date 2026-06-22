@@ -23,6 +23,7 @@ const ICONS: Record<Social["platform"], ComponentType<{ size?: number; className
 export function Contact() {
   const { scrollTo } = useSmoothScroll();
   const whatsappLink = socials.find((s) => s.platform === "whatsapp");
+  const emailLink = socials.find((s) => s.platform === "email");
 
   return (
     <Section id={SECTIONS.contact} className="relative overflow-hidden">
@@ -94,7 +95,7 @@ export function Contact() {
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <Magnetic strength={22}>
               <a
-                href="mailto:hello@yourdomain.dev"
+                href={emailLink?.url ?? "mailto:ikhsanarsalan@gmail.com"}
                 className="group relative inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-gradient-signature px-6 text-base font-medium text-white shadow-[0_0_40px_rgba(99,102,241,0.35)] transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-[0_0_60px_rgba(99,102,241,0.6)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] sm:w-auto sm:px-8"
               >
                 <Mail size={18} />

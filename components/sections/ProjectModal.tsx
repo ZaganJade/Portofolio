@@ -36,6 +36,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 px-4 py-8 backdrop-blur-md"
           onClick={onClose}
           role="presentation"
+          data-lenis-prevent
         >
           <motion.article
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -46,7 +47,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={`project-modal-title-${project.id}`}
-            className="glass-strong relative w-full max-w-3xl overflow-hidden rounded-3xl"
+            className="glass-strong relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl"
           >
             <button
               type="button"
@@ -57,63 +58,65 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
               <X size={20} />
             </button>
 
-            <div
-              className="h-64 w-full md:h-80"
-              style={{ background: project.image }}
-              aria-hidden="true"
-            />
+            <div className="overflow-y-auto overscroll-contain">
+              <div
+                className="aspect-[2/1] w-full shrink-0"
+                style={{ background: project.image }}
+                aria-hidden="true"
+              />
 
-            <div className="flex flex-col gap-6 p-8 md:p-10">
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-xs uppercase tracking-wider text-white/50">
-                  {project.year}
-                </span>
-                <h3
-                  id={`project-modal-title-${project.id}`}
-                  className="text-3xl font-semibold tracking-tight text-white md:text-4xl"
-                >
-                  {project.title}
-                </h3>
-              </div>
-
-              <p className="text-base text-white/70 md:text-lg">
-                {project.longDescription ?? project.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80"
-                  >
-                    {tag}
+              <div className="flex flex-col gap-6 p-8 md:p-10">
+                <div className="flex flex-col gap-2">
+                  <span className="font-mono text-xs uppercase tracking-wider text-white/50">
+                    {project.year}
                   </span>
-                ))}
-              </div>
+                  <h3
+                    id={`project-modal-title-${project.id}`}
+                    className="text-3xl font-semibold tracking-tight text-white md:text-4xl"
+                  >
+                    {project.title}
+                  </h3>
+                </div>
 
-              <div className="flex flex-wrap gap-3">
-                {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-signature px-5 py-2 text-sm font-medium text-white transition-shadow hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]"
-                  >
-                    <ExternalLink size={16} />
-                    Live demo
-                  </a>
-                )}
-                {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    <Github size={16} />
-                    Source code
-                  </a>
-                )}
+                <p className="text-base text-white/70 md:text-lg">
+                  {project.longDescription ?? project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {project.liveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-gradient-signature px-5 py-2 text-sm font-medium text-white transition-shadow hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]"
+                    >
+                      <ExternalLink size={16} />
+                      Live demo
+                    </a>
+                  )}
+                  {project.githubUrl && (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                    >
+                      <Github size={16} />
+                      Source code
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </motion.article>

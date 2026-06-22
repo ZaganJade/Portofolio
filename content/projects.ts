@@ -30,13 +30,58 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "hermes-panel",
+    title: "Hermes Panel — VPS Control Panel",
+    description:
+      "A self-hosted control panel for running multiple Laravel projects on a headless VPS. Database manager, file browser, sandboxed terminal, and live host monitoring — one quiet cockpit instead of a dozen SSH tabs.",
+    longDescription:
+      "Hermes Panel is a lightweight web layer over a headless VPS, built for the developer who runs their own box and juggles two or three Laravel projects side by side. It auto-discovers Laravel apps under a managed folder and makes the active project drive every module: a multi-connection database manager (browse, inline-edit, paginate, raw SQL editor with history, soft-delete trash with restore, JSON/CSV export); a sandboxed file manager with inline editor, drag-and-drop upload, zip download, and strict path-traversal protection; a built-in web terminal scoped to the project with a command policy that blocks interactive and chained commands; and Laravel tooling for artisan, queues, logs, seeders, Composer, and NPM. The terminal is being upgraded to async streaming over Laravel Reverb WebSockets (v3.1), and a built-in VPS monitor (v3.2) samples CPU, memory, disk, network, services, and ports every five seconds with threshold alerts. Security is defense-in-depth: an auth chain — session login, header password, and WhatsApp-sender header — is enforced by default, and the panel refuses to boot in production if auth is disabled without an explicit dev-bypass. Ships as a single supervisord-managed Docker image (PHP-FPM + Nginx), with a Blade + Alpine.js UI, Tailwind CSS v4, and an editorial dark theme with copper accents.",
+    tags: [
+      "Laravel",
+      "PHP",
+      "Docker",
+      "Alpine.js",
+      "Tailwind CSS",
+      "Laravel Reverb",
+      "WebSockets",
+      "VPS",
+    ],
+    image: "url('/images/Server%20Hermes-Panel.png') center/cover, #0f172a",
+    liveUrl: "https://hermes-panel.vibedev.web.id/",
+    githubUrl: "https://github.com/ZaganJade/Server_Hermes-Panel",
+    featured: true,
+    year: 2026,
+  },
+  {
+    id: "desakta",
+    title: "DESAKTA — Village Letter & E-Archive System",
+    description:
+      "A digital service platform that replaces the manual letter-request flow at a village office. Residents apply online, officials verify and issue signed PDF letters with QR codes, and every archive is managed automatically with a full audit trail.",
+    longDescription:
+      "DESAKTA is a digital administration system for Desa Kedungbako, Kabupaten Pasuruan, built to remove the queues and paperwork of requesting official letters at the village office. It splits into three access-separated portals: a public landing page with live village statistics and the active letter catalogue; a resident portal where citizens register or claim an admin-created account via WhatsApp OTP, log in with either their NIK or WhatsApp number, fill a dynamic per-letter form, upload supporting documents, and draw a digital signature on canvas; and an admin console where officials verify requests, generate the final PDF (template-filled, with the resident's signature and a validation QR code), and manage residents, the 10-type letter catalogue, and PDF templates with automatic form-field detection. Superadmins manage admin accounts and review resident password-reset tickets. Every meaningful action is written to an immutable activity log, and a scheduled monthly retention sweep purges physical files older than a year while keeping the database history intact for audit. The codebase is layered Clean Architecture — Domain, Application (use cases + ports), Infrastructure (Eloquent repositories, PDF, storage, OTP adapters), and Interfaces — with the dependency rule enforced automatically by an architecture test in CI, plus dual authentication guards for admins and residents.",
+    tags: [
+      "Laravel",
+      "Vue 3",
+      "Inertia.js",
+      "Tailwind CSS",
+      "MySQL",
+      "Clean Architecture",
+      "PDF",
+      "WhatsApp OTP",
+    ],
+    image: "url('/images/Desakta.png') center/cover, #0f172a",
+    liveUrl: "https://desakta.vibedev.web.id/",
+    featured: true,
+    year: 2026,
+  },
+  {
     id: "reviewer-fhua",
     title: "Reviewer Fhua",
     description:
       "AI-powered academic reviewer matching for legal journals. Semantic embeddings pick the right reviewer for every manuscript — not just keyword guesses.",
     longDescription:
       "Built for Fakultas Hukum Universitas Airlangga to find the perfect peer reviewer for every journal submission. The system converts manuscript abstracts and reviewer profiles into vector embeddings via Google Gemini's text-embedding-004, then ranks candidates by cosine similarity. Gemini 2.0 Flash explains why each top reviewer fits, and Fonnte's WhatsApp API lets editors reach out in one click. Supports three Airlangga law journals (Yuridika, Notaire, Jurist-Diction), six legal expertise areas, a reviewer verification workflow, and an embeddable registration form that drops into WordPress via iframe.",
-    tags: ["Next.js", "Gemini AI", "Embeddings", "Cosine Similarity", "Fonnte API", "WhatsApp"],
+    tags: ["Laravel", "Gemini AI", "Embeddings", "Cosine Similarity", "Fonnte API", "WhatsApp"],
     image: "url('/images/reviewer-fhua.png') center/cover, #0f172a",
     liveUrl: "https://reviewerfhua.my.id/",
     featured: true,
@@ -111,7 +156,7 @@ export const projects: Project[] = [
     image: "url('/images/ResQ.png') center/cover, #0f172a",
     githubUrl: "https://github.com/ZaganJade/Hackathon-ResQ",
     featured: true,
-    year: 2025,
+    year: 2026,
   },
   {
     id: "eticketing-helpdesk",
@@ -133,6 +178,6 @@ export const projects: Project[] = [
     image: "url('/images/E-Ticketing_Helpdesk.png') center/cover, #0f172a",
     githubUrl: "https://github.com/ZaganJade/E-Ticketing_Helpdesk-MobileApp",
     featured: true,
-    year: 2025,
+    year: 2026,
   },
 ];

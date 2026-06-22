@@ -11,13 +11,25 @@ import { achievements, experience } from "@/content/experience";
 import { EASING, SECTIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function Experience() {
+interface ExperienceProps {
+  /** Live public-repo count from GitHub; appended as a "Public projects" stat */
+  publicRepos?: number | null;
+}
+
+export function Experience({ publicRepos }: ExperienceProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: timelineRef,
     offset: ["start 70%", "end 30%"],
   });
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  // Append a live "Public projects" stat when GitHub returned a usable count,
+  // otherwise fall back to the static four so the grid never shows a 0.
+  const stats =
+    typeof publicRepos === "number" && publicRepos > 0
+      ? [...achievements, { label: "Public projects", value: publicRepos, suffix: "" }]
+      : [...achievements];
 
   return (
     <Section id={SECTIONS.experience} className="relative">
@@ -56,8 +68,13 @@ export function Experience() {
 
       {/* Achievement counters */}
       <ScrollReveal delay={0.3}>
-        <div className="mt-10 grid grid-cols-2 gap-4 border-y border-white/10 py-6 sm:gap-6 sm:py-8 md:mt-12 md:grid-cols-4">
-          {achievements.map((item) => (
+        <div
+          className={cn(
+            "mt-10 grid grid-cols-2 gap-4 border-y border-white/10 py-6 sm:gap-6 sm:py-8 md:mt-12",
+            stats.length >= 5 ? "md:grid-cols-5" : "md:grid-cols-4",
+          )}
+        >
+          {stats.map((item) => (
             <div key={item.label} className="flex flex-col gap-1">
               <Counter
                 value={item.value}

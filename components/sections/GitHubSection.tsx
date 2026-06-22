@@ -39,7 +39,7 @@ export async function GitHubSection() {
   // (keeps the page structure intact without broken UI)
   if (!summary.profile) return null;
 
-  const { profile, repos, totalStars, totalForks, languages, contributions, fetchedAt } = summary;
+  const { profile, repos, totalStars, forkedRepos, languages, contributions, fetchedAt } = summary;
   const syncedAgo = formatSyncedAgo(fetchedAt);
 
   return (
@@ -150,8 +150,8 @@ export async function GitHubSection() {
             icon={<Users size={14} className="text-white/40" />}
           />
           <StatCard
-            label="Forks"
-            value={totalForks}
+            label="Forked Repos"
+            value={forkedRepos}
             icon={<GitFork size={14} className="text-white/40" />}
           />
         </div>

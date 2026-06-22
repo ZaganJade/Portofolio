@@ -9,8 +9,11 @@ import { Hero } from "@/components/sections/Hero";
 import { Navigation } from "@/components/sections/Navigation";
 import { Projects } from "@/components/sections/Projects";
 import { Skills } from "@/components/sections/Skills";
+import { getPublicRepoCount } from "@/lib/github";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const publicRepos = await getPublicRepoCount();
+
   return (
     <>
       <Navigation />
@@ -21,7 +24,7 @@ export default function HomePage() {
         <Projects />
         <Skills />
         <Achievements />
-        <Experience />
+        <Experience publicRepos={publicRepos} />
         <Suspense fallback={null}>
           <GitHubSection />
         </Suspense>
