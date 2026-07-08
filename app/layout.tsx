@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { CursorTrail } from "@/components/effects/CursorTrail";
 import { MotionConfig } from "framer-motion";
 import { SmoothScrollProvider } from "@/components/effects/SmoothScrollProvider";
@@ -79,6 +80,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </MotionConfig>
         </SmoothScrollProvider>
+        <Analytics />
       </body>
     </html>
   );

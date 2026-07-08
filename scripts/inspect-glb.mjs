@@ -14,14 +14,12 @@ if (!input) {
 
 await MeshoptEncoder.ready;
 
-const io = new NodeIO()
-  .registerExtensions(ALL_EXTENSIONS)
-  .registerDependencies({
-    "draco3d.encoder": await draco3d.createEncoderModule(),
-    "draco3d.decoder": await draco3d.createDecoderModule(),
-    "meshopt.encoder": MeshoptEncoder,
-    "meshopt.decoder": MeshoptDecoder,
-  });
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
+  "draco3d.encoder": await draco3d.createEncoderModule(),
+  "draco3d.decoder": await draco3d.createDecoderModule(),
+  "meshopt.encoder": MeshoptEncoder,
+  "meshopt.decoder": MeshoptDecoder,
+});
 
 const doc = await io.read(resolve(input));
 const root = doc.getRoot();
